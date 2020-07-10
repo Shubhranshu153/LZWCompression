@@ -5,17 +5,17 @@
 #include <vector>
 #include "LZW.h"
 
-#define FILEIN "./read_data"
+#define FILEIN "./read_data.zip"
 
 
 using namespace std;
 
 
 
-unsigned int load_data(unsigned char *Data)
+unsigned int load_data(char *Data)
 {
     //Opening a file in byte read mode
-    FILE *data_file= fopen(FILEIN,"rb"); 
+    FILE *data_file= fopen(FILEIN,"r"); 
     if(data_file==NULL)
     {
         cout<<"err1"<<endl;
@@ -23,7 +23,7 @@ unsigned int load_data(unsigned char *Data)
     }
     
     //reading file contents 
-    long long int bytes_read = fread(Data,sizeof(unsigned char),MAX_INPUT_SIZE,data_file);
+    long long int bytes_read = fread(Data,sizeof(char),MAX_INPUT_SIZE,data_file);
     
     //close the file
     if(fclose(data_file)!=0)
@@ -35,7 +35,7 @@ unsigned int load_data(unsigned char *Data)
     return bytes_read;
 }
 
-vector<chunks> chunking( unsigned char *input, long long int input_size)
+vector<chunks> chunking( char *input, long long int input_size)
 {
     
     long long int chunk_start=0;
@@ -45,7 +45,7 @@ vector<chunks> chunking( unsigned char *input, long long int input_size)
         if(chunk_start+CHUNK_SIZE <=input_size)
         {
             chunks *chunk_struct=(chunks*)malloc(sizeof(chunks));
-            memcpy(chunk_struct->chunk,input+chunk_start,CHUNK_SIZE); 
+            memcpy((void *)chunk_struct->chunk,(const void*)(input+chunk_start),CHUNK_SIZE); 
             input_chunks.push_back(*chunk_struct);
         }
         else
@@ -59,16 +59,14 @@ vector<chunks> chunking( unsigned char *input, long long int input_size)
         
         
     }
-    
-    
     return input_chunks;
 
 }
 
 int main()
 {
-    unsigned char * Input=(unsigned char*)malloc(MAX_INPUT_SIZE);
-    unsigned char * Output=(unsigned char*)malloc(MAX_OUTPUT_SIZE);
+    char * Input=(char*)malloc(MAX_INPUT_SIZE);
+    char * Output=(char*)malloc(MAX_OUTPUT_SIZE);
 
   
     long long int bytes_read =load_data(Input);
@@ -91,7 +89,7 @@ int main()
     {
         if(i==input_chunks.size()-1)
             chunk_size=end_chunk_size;
-       cout<<chunk_size<<"  ";
+       
        compressed_output.push_back(LZW_compress(input_chunks[i].chunk,chunk_size));
     }
     
@@ -99,11 +97,10 @@ int main()
     int count=0;
     for(auto i:compressed_output)
     {
-        calc_compressed_size+=sizeof(unsigned short int)*i.size();
-      
+        calc_compressed_size+=sizeof(unsigned short int)*i.size();  
     }
-    cout<<calc_compressed_size/1024.0<<endl;
 
+    cout<<calc_compressed_size/1024.0<<endl;
     for(auto i:compressed_output)
     {
         LZW_decompress(i);

@@ -15,7 +15,7 @@ all: $(TARGETS)
 # $^ = names of all the dependent files, deduped and with spaces
 # $@ = complete name of the target
 LZW: test_bench.cpp
-	$(CC) $(CFLAGS) $^ `wx-config --cxxflags --libs std` -o $@
+	$(CC) $(CFLAGS) $^ `wx-config --cxxflags --libs std` -o $@ -ggdb
 
 # $(RM) is the platform agnostic way to delete a file (here rm -f)
 clean:
